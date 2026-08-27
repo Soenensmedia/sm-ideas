@@ -16,7 +16,7 @@ Werkt overal (laptop én GSM) via [Supabase](https://supabase.com) (gratis).
   - het **boomdiagram**: elk onderwerp een tak vanuit het midden, elk idee een knoop op die tak — een visueel overzicht;
   - de **lijst**: dezelfde ideeën gewoon per onderwerp onder elkaar, voor als je snel iets wil terugvinden of lezen.
   - Klik op een idee (in de boom of de lijst) om het te bewerken, van onderwerp te voorzien, als to-do te markeren, of te verwijderen.
-- **Klanten** (apart tabblad) — een klein klantenbestand, los van je ideeën: potentiële klanten, geweigerde klanten en klanten waarmee je samengewerkt hebt, elk in hun eigen kolom. Bij elke klant kan je ook bijhouden hoe je ze gevonden hebt (cold call, cold walk-in, via ads, mond-tot-mond, aanbeveling, of iets anders met eigen omschrijving).
+- **Klanten** (apart tabblad) — een klein klantenbestand, los van je ideeën: **Walk in** (klanten waar je zelf naartoe gaat), **Potentieel**, **Twijfel**, **Samenwerking nu**, **Samengewerkt** en **Geweigerd**, elk in hun eigen kolom. Bij elke klant kan je ook bijhouden hoe je ze gevonden hebt (cold call, cold walk-in, via ads, mond-tot-mond, aanbeveling, of iets anders met eigen omschrijving).
 
 ## Stap 1 — Supabase account + project
 

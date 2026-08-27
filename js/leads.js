@@ -4,8 +4,9 @@ import { fetchLeads, createLead, updateLead, deleteLead } from './data.js';
 import { openModal, closeModal } from './modal.js';
 import { showToast } from './toast.js';
 
-const STATUS_ORDER = ['potentieel', 'twijfel', 'samenwerking_nu', 'samengewerkt', 'geweigerd'];
+const STATUS_ORDER = ['walk_in', 'potentieel', 'twijfel', 'samenwerking_nu', 'samengewerkt', 'geweigerd'];
 const STATUS_LABELS = {
+  walk_in: 'Walk in',
   potentieel: 'Potentieel',
   twijfel: 'Twijfel',
   samenwerking_nu: 'Samenwerking nu',
@@ -81,7 +82,7 @@ function openLeadModal(lead) {
       <div class="field-row">
         <div class="field"><label>Status</label>
           <select id="lf-status">
-            ${STATUS_ORDER.map((s) => `<option value="${s}" ${lead?.status === s ? 'selected' : ''}>${STATUS_LABELS[s]}</option>`).join('')}
+            ${STATUS_ORDER.map((s) => `<option value="${s}" ${(lead?.status || 'potentieel') === s ? 'selected' : ''}>${STATUS_LABELS[s]}</option>`).join('')}
           </select>
         </div>
         <div class="field"><label>Hoe gevonden</label>
