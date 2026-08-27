@@ -33,7 +33,14 @@ function renderAll() {
   });
   const topics = [...byTopic.keys()].sort((a, b) => a === 'Overig' ? 1 : b === 'Overig' ? -1 : a.localeCompare(b));
 
-  todos.sort((a, b) => Number(a.done) - Number(b.done) || new Date(b.created_at) - new Date(a.created_at));
+  const todosByTopic = new Map();
+  todos.forEach((n) => {
+    const topic = n.topic || 'Overig';
+    if (!todosByTopic.has(topic)) todosByTopic.set(topic, []);
+    todosByTopic.get(topic).push(n);
+  });
+  const todoTopics = [...todosByTopic.keys()].sort((a, b) => a === 'Overig' ? 1 : b === 'Overig' ? -1 : a.localeCompare(b));
+  todosByTopic.forEach((list) => list.sort((a, b) => Number(a.done) - Number(b.done) || new Date(b.created_at) - new Date(a.created_at)));
 
   container.innerHTML = `
     <div class="capture-card">
@@ -53,7 +60,11 @@ function renderAll() {
     ${todos.length ? `
       <div class="section">
         <div class="section-title">To-do's <span class="count">${todos.filter((t) => !t.done).length}</span></div>
-        <div class="todo-list">${todos.map(todoRowHtml).join('')}</div>
+        ${todoTopics.map((topic) => `
+          <div class="todo-topic-block">
+            ${todoTopics.length > 1 || topic !== 'Overig' ? `<div class="todo-topic-heading">${escapeHtml(topic)}</div>` : ''}
+            <div class="todo-list">${todosByTopic.get(topic).map(todoRowHtml).join('')}</div>
+          </div>`).join('')}
       </div>` : ''}
 
     ${rest.length ? `
@@ -218,7 +229,6 @@ function todoRowHtml(n) {
     <div class="todo-row ${n.done ? 'done' : ''}" data-id="${n.id}">
       <span class="todo-check ${n.done ? 'checked' : ''}" data-id="${n.id}"></span>
       <span class="todo-text">${escapeHtml(n.content)}</span>
-      ${n.topic ? `<span class="todo-topic">${escapeHtml(n.topic)}</span>` : ''}
     </div>`;
 }
 

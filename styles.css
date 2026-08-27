@@ -126,6 +126,12 @@ main { flex: 1; padding: 28px; max-width: 860px; width: 100%; margin: 0 auto; }
   border-left: 2px solid var(--red); font-style: italic;
 }
 
+.todo-topic-block { margin-bottom: 18px; }
+.todo-topic-block:last-child { margin-bottom: 0; }
+.todo-topic-heading {
+  font-family: 'Fraunces', serif; font-size: 13px; color: var(--red); margin-bottom: 6px;
+  letter-spacing: .02em;
+}
 .todo-list { display: flex; flex-direction: column; gap: 2px; }
 .todo-row {
   display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-radius: 8px;
@@ -140,7 +146,6 @@ main { flex: 1; padding: 28px; max-width: 860px; width: 100%; margin: 0 auto; }
 .todo-check.checked::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 700; }
 .todo-text { flex: 1; font-size: 14px; }
 .todo-row.done .todo-text { color: var(--text-faint); text-decoration: line-through; }
-.todo-topic { font-size: 11px; color: var(--text-faint); background: var(--paneld); padding: 2px 9px; border-radius: 20px; }
 
 .empty-note { color: var(--text-faint); font-size: 13px; padding: 20px 0; text-align: center; }
 
