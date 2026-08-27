@@ -4,8 +4,14 @@ import { fetchLeads, createLead, updateLead, deleteLead } from './data.js';
 import { openModal, closeModal } from './modal.js';
 import { showToast } from './toast.js';
 
-const STATUS_ORDER = ['potentieel', 'geweigerd', 'samengewerkt'];
-const STATUS_LABELS = { potentieel: 'Potentieel', geweigerd: 'Geweigerd', samengewerkt: 'Samengewerkt' };
+const STATUS_ORDER = ['potentieel', 'twijfel', 'samenwerking_nu', 'samengewerkt', 'geweigerd'];
+const STATUS_LABELS = {
+  potentieel: 'Potentieel',
+  twijfel: 'Twijfel',
+  samenwerking_nu: 'Samenwerking nu',
+  samengewerkt: 'Samengewerkt',
+  geweigerd: 'Geweigerd',
+};
 const BRON_LABELS = {
   cold_call: 'Cold call',
   cold_walkin: 'Cold walk-in',
