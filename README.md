@@ -7,10 +7,9 @@ Werkt overal (laptop én GSM) via [Supabase](https://supabase.com) (gratis).
 ## Hoe het werkt
 
 - **Bovenaan schrijven** — typ iets in het vak en klik Opslaan (of Cmd/Ctrl+Enter). Dat is alles.
-- **"Nog te verwerken"** — alles wat je net opschreef, staat hier tot het een onderwerp en eventueel een korte toelichting krijgt. Vraag je dit gewoon aan mij in een Claude-gesprek ("kijk eens naar mijn ideeën"), dan groepeer ik ze en schrijf ik er een korte, heldere insteek bij.
+- **"Aandacht nodig"** — alles wat je net opschreef, staat hier tot het een onderwerp en eventueel een korte toelichting krijgt, met erbij hoe lang het al ligt te wachten. Vraag je dit gewoon aan mij in een Claude-gesprek ("kijk eens naar mijn ideeën"), dan groepeer ik ze en schrijf ik er een korte, heldere insteek bij.
 - **To-do's** — een idee aanvinken als to-do (in het bewerkscherm) laat het als af-te-vinken taak verschijnen.
-- **Kladblok** — verwerkte ideeën, gegroepeerd per onderwerp.
-- Klik op eender welk kaartje om het te bewerken, van onderwerp te voorzien, als to-do te markeren, of te verwijderen.
+- **Kladblok** — verwerkte ideeën, getoond als een boomdiagram: elk onderwerp een tak vanuit het midden, elk idee een knoop op die tak. Klik op een idee-knoop om het te bewerken, van onderwerp te voorzien, als to-do te markeren, of te verwijderen.
 
 ## Stap 1 — Supabase account + project
 

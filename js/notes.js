@@ -20,7 +20,8 @@ export async function renderNotes() {
 
 function renderAll() {
   const container = document.getElementById('notes-container');
-  const unreviewed = state.notes.filter((n) => !n.reviewed);
+  const unreviewed = state.notes.filter((n) => !n.reviewed)
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   const todos = state.notes.filter((n) => n.reviewed && n.is_todo);
   const rest = state.notes.filter((n) => n.reviewed && !n.is_todo);
 
@@ -37,13 +38,13 @@ function renderAll() {
   container.innerHTML = `
     <div class="capture-card">
       <textarea id="capture-input" rows="3" placeholder="Schrijf zomaar iets op..."></textarea>
-      <button type="button" class="btn btn-gold" id="capture-save">Opslaan</button>
+      <button type="button" class="btn btn-red" id="capture-save">Opslaan</button>
     </div>
 
     ${unreviewed.length ? `
       <div class="section">
-        <div class="section-title">Nog te verwerken <span class="count">${unreviewed.length}</span></div>
-        <div class="note-grid">${unreviewed.map(rawCardHtml).join('')}</div>
+        <div class="section-title">Aandacht nodig <span class="count">${unreviewed.length}</span></div>
+        <div class="attention-panel">${unreviewed.map(attentionRowHtml).join('')}</div>
       </div>` : ''}
 
     ${todos.length ? `
@@ -52,14 +53,10 @@ function renderAll() {
         <div class="todo-list">${todos.map(todoRowHtml).join('')}</div>
       </div>` : ''}
 
-    ${topics.length ? `
+    ${rest.length ? `
       <div class="section">
         <div class="section-title">Kladblok</div>
-        ${topics.map((topic) => `
-          <div class="topic-block">
-            <div class="topic-heading">${escapeHtml(topic)}</div>
-            <div class="note-grid">${byTopic.get(topic).map(noteCardHtml).join('')}</div>
-          </div>`).join('')}
+        ${treeHtml(topics, byTopic)}
       </div>` : ''}
 
     ${!state.notes.length ? '<div class="empty-note">Nog niets opgeschreven. Begin hierboven.</div>' : ''}
@@ -71,9 +68,15 @@ function renderAll() {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleCapture();
   });
 
-  container.querySelectorAll('.note-card').forEach((card) => {
-    card.addEventListener('click', () => {
-      const note = state.notes.find((n) => n.id === card.dataset.id);
+  container.querySelectorAll('.attention-row').forEach((row) => {
+    row.addEventListener('click', () => {
+      const note = state.notes.find((n) => n.id === row.dataset.id);
+      if (note) openNoteModal(note);
+    });
+  });
+  container.querySelectorAll('.tree-idea-group').forEach((g) => {
+    g.addEventListener('click', () => {
+      const note = state.notes.find((n) => n.id === g.dataset.id);
       if (note) openNoteModal(note);
     });
   });
@@ -113,21 +116,14 @@ async function handleCapture() {
   }
 }
 
-function rawCardHtml(n) {
-  const stale = daysAgo(n.created_at) >= STALE_DAYS;
+function attentionRowHtml(n) {
+  const d = daysAgo(n.created_at);
+  const stale = d >= STALE_DAYS;
+  const reason = d === 0 ? 'vandaag geschreven' : d === 1 ? '1 dag niet verwerkt' : `${d} dagen niet verwerkt`;
   return `
-    <div class="note-card raw ${stale ? 'stale' : ''}" data-id="${n.id}">
-      <p>${escapeHtml(n.content)}</p>
-      <div class="note-meta">${fmtDateTime(new Date(n.created_at))}</div>
-    </div>`;
-}
-
-function noteCardHtml(n) {
-  return `
-    <div class="note-card" data-id="${n.id}">
-      <p>${escapeHtml(n.content)}</p>
-      ${n.ai_note ? `<div class="ai-note">${escapeHtml(n.ai_note)}</div>` : ''}
-      <div class="note-meta">${fmtDateTime(new Date(n.created_at))}</div>
+    <div class="attention-row ${stale ? 'stale' : ''}" data-id="${n.id}">
+      <div class="attention-content"><p>${escapeHtml(n.content)}</p></div>
+      <span class="attention-reason ${stale ? '' : 'fresh'}">${reason}</span>
     </div>`;
 }
 
@@ -137,6 +133,65 @@ function todoRowHtml(n) {
       <span class="todo-check ${n.done ? 'checked' : ''}" data-id="${n.id}"></span>
       <span class="todo-text">${escapeHtml(n.content)}</span>
       ${n.topic ? `<span class="todo-topic">${escapeHtml(n.topic)}</span>` : ''}
+    </div>`;
+}
+
+// ── Node tree: verwerkte ideeën als een radiaal netwerk rond een centrum,
+// per onderwerp vertakt. Puur SVG + CSS, geen library nodig.
+function treeHtml(topics, byTopic) {
+  if (!topics.length) return '<div class="tree-empty">Verwerkte ideeën verschijnen hier als een boom.</div>';
+
+  const W = 720, H = 720, cx = W / 2, cy = H / 2;
+  const R1 = 190;
+  const IDEA_R = 88;
+  const N = topics.length;
+
+  let links = '';
+  let nodes = '';
+
+  topics.forEach((topic, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    const tx = cx + R1 * Math.cos(angle);
+    const ty = cy + R1 * Math.sin(angle);
+    links += `<line class="tree-link to-topic" x1="${cx.toFixed(1)}" y1="${cy.toFixed(1)}" x2="${tx.toFixed(1)}" y2="${ty.toFixed(1)}"></line>`;
+
+    const ideas = byTopic.get(topic);
+    const M = ideas.length;
+    const spread = Math.min(Math.PI / 2.6, 0.3 * M);
+    ideas.forEach((n, j) => {
+      const off = M > 1 ? (j / (M - 1) - 0.5) * spread : 0;
+      const ia = angle + off;
+      const ix = tx + IDEA_R * Math.cos(ia);
+      const iy = ty + IDEA_R * Math.sin(ia);
+      links += `<line class="tree-link" x1="${tx.toFixed(1)}" y1="${ty.toFixed(1)}" x2="${ix.toFixed(1)}" y2="${iy.toFixed(1)}"></line>`;
+      const label = n.content.length > 26 ? n.content.slice(0, 26) + '…' : n.content;
+      const anchor = Math.cos(ia) >= 0 ? 'start' : 'end';
+      const dx = Math.cos(ia) >= 0 ? 10 : -10;
+      nodes += `
+        <g class="tree-idea-group" data-id="${n.id}">
+          <circle class="tree-node-idea ${n.done ? 'done' : ''}" cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="5"><title>${escapeHtml(n.content)}</title></circle>
+          <text class="tree-idea-label" x="${(ix + dx).toFixed(1)}" y="${(iy + 3).toFixed(1)}" text-anchor="${anchor}">${escapeHtml(label)}</text>
+        </g>`;
+    });
+
+    const tAnchor = Math.cos(angle) >= 0 ? 'start' : 'end';
+    const tdx = Math.cos(angle) >= 0 ? 14 : -14;
+    nodes += `
+      <g class="tree-topic-group">
+        <circle class="tree-node-topic" cx="${tx.toFixed(1)}" cy="${ty.toFixed(1)}" r="8"></circle>
+        <text class="tree-topic-label" x="${(tx + tdx).toFixed(1)}" y="${(ty + 4.5).toFixed(1)}" text-anchor="${tAnchor}">${escapeHtml(topic)}</text>
+      </g>`;
+  });
+
+  return `
+    <div class="tree-panel">
+      <svg class="tree-svg" viewBox="0 0 ${W} ${H}">
+        <circle class="tree-ring" cx="${cx}" cy="${cy}" r="${R1}"></circle>
+        ${links}
+        ${nodes}
+        <circle class="tree-center-glow" cx="${cx}" cy="${cy}" r="14"></circle>
+        <circle class="tree-center-dot" cx="${cx}" cy="${cy}" r="5"></circle>
+      </svg>
     </div>`;
 }
 
@@ -157,13 +212,13 @@ function openNoteModal(note) {
       <div class="field"><label>Toelichting (optioneel)</label><textarea id="nf-ainote" rows="2" placeholder="Korte duiding of insteek...">${escapeHtml(note.ai_note || '')}</textarea></div>
       <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-dim); margin-bottom:14px;">
         <input type="checkbox" id="nf-reviewed" style="width:auto;" ${note.reviewed ? 'checked' : ''}>
-        Verwerkt (verdwijnt uit "Nog te verwerken")
+        Verwerkt (verdwijnt uit "Aandacht nodig")
       </label>
       <div class="modal-actions">
         <button type="button" class="btn btn-danger" id="nf-delete">Verwijderen</button>
         <div class="modal-actions-right">
           <button type="button" class="btn btn-ghost" id="nf-cancel">Annuleren</button>
-          <button type="submit" class="btn btn-gold">Opslaan</button>
+          <button type="submit" class="btn btn-red">Opslaan</button>
         </div>
       </div>
     </form>
