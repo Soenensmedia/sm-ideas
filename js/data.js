@@ -17,3 +17,17 @@ export const updateNote = (id, payload) =>
 
 export const deleteNote = (id) =>
   sb.from('notes').delete().eq('id', id).then(unwrap);
+
+// ── klantenbestand ──────────────────────────────────────
+export const fetchLeads = () =>
+  sb.from('leads').select('*').order('created_at', { ascending: false }).then(unwrap);
+
+export const createLead = (payload) =>
+  sb.auth.getUser().then(({ data: { user } }) =>
+    sb.from('leads').insert({ ...payload, user_id: user.id }).select().single().then(unwrap));
+
+export const updateLead = (id, payload) =>
+  sb.from('leads').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', id).select().single().then(unwrap);
+
+export const deleteLead = (id) =>
+  sb.from('leads').delete().eq('id', id).then(unwrap);

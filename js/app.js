@@ -1,6 +1,7 @@
 import { signIn, signUp, signOut, onAuthChange, getSession } from './auth.js';
 import { state } from './state.js';
 import { renderNotes } from './notes.js';
+import { renderLeads } from './leads.js';
 import { showToast } from './toast.js';
 
 const loginView = document.getElementById('login-view');
@@ -42,14 +43,28 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   await signOut();
 });
 
-async function showAppShell() {
-  loginView.classList.add('hidden');
-  appShell.classList.remove('hidden');
+let activeView = 'kladblok';
+document.querySelectorAll('.tab-btn').forEach((btn) => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+async function switchView(view) {
+  activeView = view;
+  document.querySelectorAll('.view').forEach((v) => v.classList.add('hidden'));
+  document.getElementById(`view-${view}`).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.view === view));
   try {
-    await renderNotes();
+    if (view === 'kladblok') await renderNotes();
+    if (view === 'klanten') await renderLeads();
   } catch (err) {
     showToast('Kon niet laden: ' + err.message, true);
   }
+}
+
+async function showAppShell() {
+  loginView.classList.add('hidden');
+  appShell.classList.remove('hidden');
+  await switchView(activeView);
 }
 
 function showLoginView() {

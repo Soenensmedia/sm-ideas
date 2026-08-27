@@ -12,6 +12,7 @@ Werkt overal (laptop én GSM) via [Supabase](https://supabase.com) (gratis).
   - Wil je het slimmer, met een echte korte toelichting per idee? Vraag het me in een Claude-gesprek ("kijk eens naar mijn ideeën") — dan lees en groepeer ik ze zelf.
 - **To-do's** — een idee aanvinken als to-do (in het bewerkscherm) laat het als af-te-vinken taak verschijnen.
 - **Kladblok** — verwerkte ideeën, getoond als een boomdiagram: elk onderwerp een tak vanuit het midden, elk idee een knoop op die tak. Klik op een idee-knoop om het te bewerken, van onderwerp te voorzien, als to-do te markeren, of te verwijderen.
+- **Klanten** (apart tabblad) — een klein klantenbestand, los van je ideeën: potentiële klanten, geweigerde klanten en klanten waarmee je samengewerkt hebt, elk in hun eigen kolom. Bij elke klant kan je ook bijhouden hoe je ze gevonden hebt (cold call, cold walk-in, via ads, mond-tot-mond, aanbeveling, of iets anders met eigen omschrijving).
 
 ## Stap 1 — Supabase account + project
 
@@ -20,7 +21,8 @@ Werkt overal (laptop én GSM) via [Supabase](https://supabase.com) (gratis).
 3. Wacht tot het project klaar is (~2 min).
 4. Ga naar **SQL Editor** → **New query**.
 5. Open [`sql/schema.sql`](sql/schema.sql), kopieer de volledige inhoud, plak het in de SQL Editor, en klik **Run**.
-6. Ga naar **Project Settings** (tandwiel-icoon) → **API**.
+6. Nieuwe query → open ook [`sql/002_leads.sql`](sql/002_leads.sql), plak en **Run** (voor het Klanten-tabblad).
+7. Ga naar **Project Settings** (tandwiel-icoon) → **API**.
    - Kopieer de **Project URL**
    - Kopieer de **anon public** key
 

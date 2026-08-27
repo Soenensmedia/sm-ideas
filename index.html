@@ -44,11 +44,20 @@
       <span class="brand-mark">✳</span>
       <span class="brand-name">SM-Ideas</span>
     </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-view="kladblok">Kladblok</button>
+      <button class="tab-btn" data-view="klanten">Klanten</button>
+    </div>
     <button class="btn btn-ghost btn-small" id="logout-btn">Uitloggen</button>
   </div>
 
   <main>
-    <div id="notes-container"></div>
+    <div id="view-kladblok" class="view">
+      <div id="notes-container"></div>
+    </div>
+    <div id="view-klanten" class="view hidden">
+      <div id="leads-container"></div>
+    </div>
   </main>
 </div>
 

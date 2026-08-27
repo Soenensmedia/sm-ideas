@@ -70,6 +70,10 @@ textarea { resize: vertical; }
 }
 .topbar-left { display: flex; align-items: center; gap: 9px; }
 .topbar .brand-name { font-size: 19px; }
+.tabs { display: flex; gap: 4px; }
+.tab-btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-dim); }
+.tab-btn.active { background: var(--red); color: #fff; }
+.view.hidden { display: none; }
 
 main { flex: 1; padding: 28px; max-width: 860px; width: 100%; margin: 0 auto; }
 
@@ -193,11 +197,24 @@ main { flex: 1; padding: 28px; max-width: 860px; width: 100%; margin: 0 auto; }
 .modal-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
 .modal-actions-right { display: flex; gap: 10px; margin-left: auto; }
 
+/* ══════════ KLANTENBESTAND ══════════ */
+.leads-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.lead-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.lead-col { background: var(--paneld); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 80px; }
+.lead-col-title { font-family: 'Fraunces', serif; font-size: 14px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+.lead-col-title .count { font-family: 'DM Sans', sans-serif; font-size: 11px; background: var(--red-wash); color: var(--red); padding: 1px 8px; border-radius: 20px; font-weight: 600; }
+.lead-card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; transition: border-color .15s; }
+.lead-card:hover { border-color: var(--red); }
+.lead-name { font-weight: 600; font-size: 14px; }
+.lead-bron { display: inline-block; font-size: 10.5px; color: var(--text-dim); background: var(--paneld); border: 1px solid var(--line); padding: 2px 9px; border-radius: 20px; margin-top: 6px; }
+.lead-notes { font-size: 12.5px; color: var(--text-dim); margin-top: 8px; line-height: 1.4; }
+
 @media (max-width: 640px) {
   main { padding: 18px; }
-  .topbar { padding: 14px 18px; }
+  .topbar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
   .note-grid { grid-template-columns: 1fr; }
   .field-row { grid-template-columns: 1fr; }
+  .lead-board { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   .tree-ring, .tree-center-glow { animation: none; }
