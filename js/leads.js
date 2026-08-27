@@ -46,7 +46,7 @@ function renderBoard() {
       ${STATUS_ORDER.map((status) => {
         const items = state.leads.filter((l) => l.status === status);
         return `
-          <div class="lead-col">
+          <div class="lead-col" data-status="${status}">
             <div class="lead-col-title">${STATUS_LABELS[status]} <span class="count">${items.length}</span></div>
             ${items.length ? items.map(leadCardHtml).join('') : '<div class="empty-note">Nog niemand hier.</div>'}
           </div>`;
@@ -60,13 +60,40 @@ function renderBoard() {
       const lead = state.leads.find((l) => l.id === card.dataset.id);
       if (lead) openLeadModal(lead);
     });
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', card.dataset.id);
+      e.dataTransfer.effectAllowed = 'move';
+    });
   });
+  container.querySelectorAll('.lead-col').forEach((col) => {
+    col.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      col.classList.add('drag-over');
+    });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      handleDrop(e.dataTransfer.getData('text/plain'), col.dataset.status);
+    });
+  });
+}
+
+async function handleDrop(leadId, newStatus) {
+  const lead = state.leads.find((l) => l.id === leadId);
+  if (!lead || lead.status === newStatus) return;
+  try {
+    const updated = await updateLead(leadId, { status: newStatus });
+    const idx = state.leads.findIndex((l) => l.id === leadId);
+    state.leads[idx] = updated;
+    renderBoard();
+  } catch (err) { showToast(err.message, true); }
 }
 
 function leadCardHtml(l) {
   const bron = l.bron === 'anders' && l.bron_detail ? l.bron_detail : BRON_LABELS[l.bron];
   return `
-    <div class="lead-card" data-id="${l.id}">
+    <div class="lead-card" data-id="${l.id}" draggable="true">
       <div class="lead-name">${escapeHtml(l.naam)}</div>
       ${bron ? `<span class="lead-bron">${escapeHtml(bron)}</span>` : ''}
       ${l.notities ? `<p class="lead-notes">${escapeHtml(l.notities)}</p>` : ''}
