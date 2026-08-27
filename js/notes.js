@@ -142,7 +142,7 @@ function todoRowHtml(n) {
 
 function openNoteModal(note) {
   openModal(`
-    <div class="modal-header"><h2>Sprokkel</h2></div>
+    <div class="modal-header"><h2>Idee bewerken</h2></div>
     <form id="note-form">
       <div class="field"><label>Tekst</label><textarea id="nf-content" rows="4">${escapeHtml(note.content)}</textarea></div>
       <div class="field-row">
@@ -171,7 +171,7 @@ function openNoteModal(note) {
 
   document.getElementById('nf-cancel').addEventListener('click', closeModal);
   document.getElementById('nf-delete').addEventListener('click', async () => {
-    if (!confirm('Dit sprokkeltje verwijderen?')) return;
+    if (!confirm('Dit idee verwijderen?')) return;
     try {
       await deleteNote(note.id);
       state.notes = state.notes.filter((n) => n.id !== note.id);
