@@ -43,7 +43,10 @@ function renderAll() {
 
     ${unreviewed.length ? `
       <div class="section">
-        <div class="section-title">Aandacht nodig <span class="count">${unreviewed.length}</span></div>
+        <div class="section-title">
+          Aandacht nodig <span class="count">${unreviewed.length}</span>
+          ${unreviewed.length >= 2 ? '<button type="button" class="btn btn-ghost btn-small" id="auto-group-btn" style="margin-left:auto;">✳ Groepeer automatisch</button>' : ''}
+        </div>
         <div class="attention-panel">${unreviewed.map(attentionRowHtml).join('')}</div>
       </div>` : ''}
 
@@ -63,6 +66,7 @@ function renderAll() {
   `;
 
   document.getElementById('capture-save').addEventListener('click', handleCapture);
+  document.getElementById('auto-group-btn')?.addEventListener('click', handleAutoGroup);
   const input = document.getElementById('capture-input');
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleCapture();
@@ -111,6 +115,88 @@ async function handleCapture() {
     input.value = '';
     renderAll();
     showToast('Opgeslagen');
+  } catch (err) {
+    showToast(err.message, true);
+  }
+}
+
+// ── Automatisch groeperen: puur woordoverlap tussen ideeën (geen API,
+// geen kosten) — geen echt taalbegrip, dus louter herkenbaar gedeelde
+// woorden worden samengenomen. Ideeën die nergens genoeg op lijken
+// blijven gewoon in "Aandacht nodig" staan voor een handmatig onderwerp.
+const STOPWORDS = new Set([
+  'de', 'het', 'een', 'en', 'van', 'dat', 'die', 'dit', 'deze', 'ik', 'je', 'jij', 'wil',
+  'kan', 'moet', 'moeten', 'met', 'voor', 'bij', 'op', 'aan', 'te', 'in', 'is', 'zijn',
+  'wordt', 'worden', 'dan', 'als', 'of', 'maar', 'ook', 'nog', 'wat', 'dus', 'om', 'uit',
+  'over', 'na', 'tot', 'per', 'meer', 'minder', 'heel', 'erg', 'ga', 'gaan', 'doen',
+  'naar', 'zo', 'zou', 'heb', 'hebben', 'er', 'me', 'mijn', 'iets', 'even', 'misschien',
+  'denk', 'nu', 'nog', 'wel', 'niet', 'geen', 'even', 'toch',
+]);
+const AUTO_GROUP_THRESHOLD = 0.22;
+// Woorden die wel meetellen voor gelijkenis, maar te generiek zijn om als
+// onderwerpnaam te tonen (bijna elke notitie is immers "een idee").
+const GENERIC_TOPIC_WORDS = new Set(['idee', 'ideeën', 'gedachte', 'gedachten', 'notitie', 'dingen', 'zaken']);
+
+function significantWords(text) {
+  return (text || '').toLowerCase()
+    .replace(/[^\wàáâäèéêëìíîïòóôöùúûüçñ\s]/gi, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 3 && !STOPWORDS.has(w));
+}
+
+function jaccard(a, b) {
+  const setA = new Set(a), setB = new Set(b);
+  if (!setA.size || !setB.size) return 0;
+  const inter = [...setA].filter((w) => setB.has(w)).length;
+  const union = new Set([...setA, ...setB]).size;
+  return inter / union;
+}
+
+function autoCluster(notes) {
+  const words = notes.map((n) => significantWords(n.content));
+  const clusters = [];
+  notes.forEach((n, i) => {
+    let best = null, bestScore = 0;
+    clusters.forEach((c) => {
+      const score = Math.max(...c.members.map((j) => jaccard(words[i], words[j])));
+      if (score > bestScore) { bestScore = score; best = c; }
+    });
+    if (best && bestScore >= AUTO_GROUP_THRESHOLD) {
+      best.members.push(i);
+    } else {
+      clusters.push({ members: [i] });
+    }
+  });
+  return clusters
+    .filter((c) => c.members.length >= 2)
+    .map((c) => {
+      const freq = new Map();
+      c.members.forEach((i) => words[i].forEach((w) => freq.set(w, (freq.get(w) || 0) + 1)));
+      const ranked = [...freq.entries()].sort((a, b) => b[1] - a[1]).map(([w]) => w);
+      const topWord = ranked.find((w) => !GENERIC_TOPIC_WORDS.has(w)) || ranked[0];
+      const topic = topWord ? topWord.charAt(0).toUpperCase() + topWord.slice(1) : 'Overig';
+      return { topic, notes: c.members.map((i) => notes[i]) };
+    });
+}
+
+async function handleAutoGroup() {
+  const unreviewed = state.notes.filter((n) => !n.reviewed);
+  const clusters = autoCluster(unreviewed);
+  if (!clusters.length) {
+    showToast('Geen duidelijke overlap gevonden — nog te weinig gemeenschappelijke woorden.', true);
+    return;
+  }
+  try {
+    for (const cluster of clusters) {
+      for (const note of cluster.notes) {
+        const updated = await updateNote(note.id, { topic: cluster.topic, reviewed: true });
+        const idx = state.notes.findIndex((n) => n.id === note.id);
+        state.notes[idx] = updated;
+      }
+    }
+    renderAll();
+    const grouped = clusters.reduce((s, c) => s + c.notes.length, 0);
+    showToast(`${clusters.length} groep${clusters.length === 1 ? '' : 'en'} gevonden, ${grouped} ideeën verwerkt`);
   } catch (err) {
     showToast(err.message, true);
   }
