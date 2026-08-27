@@ -12,7 +12,10 @@ Werkt overal (laptop én GSM) via [Supabase](https://supabase.com) (gratis).
   - Vul je zelf een onderwerp in bij één idee (in het bewerkscherm)? Dan neemt dat automatisch ook andere onverwerkte ideeën mee die er genoeg op lijken — je hoeft dus niet elk idee apart te doen.
   - Wil je het slimmer, met een echte korte toelichting per idee? Vraag het me in een Claude-gesprek ("kijk eens naar mijn ideeën") — dan lees en groepeer ik ze zelf.
 - **To-do's** — een idee aanvinken als to-do (in het bewerkscherm) laat het als af-te-vinken taak verschijnen.
-- **Kladblok** — verwerkte ideeën, getoond als een boomdiagram: elk onderwerp een tak vanuit het midden, elk idee een knoop op die tak. Klik op een idee-knoop om het te bewerken, van onderwerp te voorzien, als to-do te markeren, of te verwijderen.
+- **Kladblok** — verwerkte ideeën, op 2 manieren getoond onder elkaar (het ene vervangt het andere niet):
+  - het **boomdiagram**: elk onderwerp een tak vanuit het midden, elk idee een knoop op die tak — een visueel overzicht;
+  - de **lijst**: dezelfde ideeën gewoon per onderwerp onder elkaar, voor als je snel iets wil terugvinden of lezen.
+  - Klik op een idee (in de boom of de lijst) om het te bewerken, van onderwerp te voorzien, als to-do te markeren, of te verwijderen.
 - **Klanten** (apart tabblad) — een klein klantenbestand, los van je ideeën: potentiële klanten, geweigerde klanten en klanten waarmee je samengewerkt hebt, elk in hun eigen kolom. Bij elke klant kan je ook bijhouden hoe je ze gevonden hebt (cold call, cold walk-in, via ads, mond-tot-mond, aanbeveling, of iets anders met eigen omschrijving).
 
 ## Stap 1 — Supabase account + project

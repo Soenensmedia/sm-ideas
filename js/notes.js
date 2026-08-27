@@ -71,6 +71,14 @@ function renderAll() {
       <div class="section">
         <div class="section-title">Kladblok</div>
         ${treeHtml(topics, byTopic)}
+      </div>
+      <div class="section">
+        <div class="section-title">Kladblok — lijst</div>
+        ${topics.map((topic) => `
+          <div class="topic-block">
+            <div class="topic-heading">${escapeHtml(topic)}</div>
+            <div class="note-grid">${byTopic.get(topic).map(noteCardHtml).join('')}</div>
+          </div>`).join('')}
       </div>` : ''}
 
     ${!state.notes.length ? '<div class="empty-note">Nog niets opgeschreven. Begin hierboven.</div>' : ''}
@@ -92,6 +100,12 @@ function renderAll() {
   container.querySelectorAll('.tree-idea-group').forEach((g) => {
     g.addEventListener('click', () => {
       const note = state.notes.find((n) => n.id === g.dataset.id);
+      if (note) openNoteModal(note);
+    });
+  });
+  container.querySelectorAll('.note-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const note = state.notes.find((n) => n.id === card.dataset.id);
       if (note) openNoteModal(note);
     });
   });
@@ -229,6 +243,15 @@ function todoRowHtml(n) {
     <div class="todo-row ${n.done ? 'done' : ''}" data-id="${n.id}">
       <span class="todo-check ${n.done ? 'checked' : ''}" data-id="${n.id}"></span>
       <span class="todo-text">${escapeHtml(n.content)}</span>
+    </div>`;
+}
+
+function noteCardHtml(n) {
+  return `
+    <div class="note-card" data-id="${n.id}">
+      <p>${escapeHtml(n.content)}</p>
+      ${n.ai_note ? `<div class="ai-note">${escapeHtml(n.ai_note)}</div>` : ''}
+      <div class="note-meta">${fmtDateTime(new Date(n.created_at))}</div>
     </div>`;
 }
 

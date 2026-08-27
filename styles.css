@@ -126,6 +126,13 @@ main { flex: 1; padding: 28px; max-width: 860px; width: 100%; margin: 0 auto; }
   border-left: 2px solid var(--red); font-style: italic;
 }
 
+.topic-block { margin-bottom: 20px; }
+.topic-block:last-child { margin-bottom: 0; }
+.topic-heading {
+  font-family: 'Fraunces', serif; font-size: 13px; color: var(--red); margin-bottom: 10px;
+  letter-spacing: .02em;
+}
+
 .todo-topic-block { margin-bottom: 18px; }
 .todo-topic-block:last-child { margin-bottom: 0; }
 .todo-topic-heading {
