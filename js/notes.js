@@ -323,20 +323,46 @@ function openNoteModal(note) {
   });
   document.getElementById('note-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const topic = document.getElementById('nf-topic').value.trim() || null;
     const payload = {
       content: document.getElementById('nf-content').value.trim(),
-      topic: document.getElementById('nf-topic').value.trim() || null,
+      topic,
       is_todo: document.getElementById('nf-todo').checked,
       ai_note: document.getElementById('nf-ainote').value.trim() || null,
-      reviewed: document.getElementById('nf-reviewed').checked,
+      // Een onderwerp invullen betekent in de praktijk dat het verwerkt is,
+      // ook als het vinkje zelf niet aangeraakt werd.
+      reviewed: document.getElementById('nf-reviewed').checked || !!topic,
     };
     try {
       const updated = await updateNote(note.id, payload);
       const idx = state.notes.findIndex((n) => n.id === note.id);
       state.notes[idx] = updated;
+      let swept = 0;
+      if (topic && !note.is_todo) {
+        swept = await sweepMatchingIntoTopic(payload.content, topic, note.id);
+      }
       closeModal();
       renderAll();
-      showToast('Opgeslagen');
+      showToast(swept > 0 ? `Opgeslagen — ${swept} verwant idee${swept === 1 ? '' : 'ën'} meegenomen onder "${topic}"` : 'Opgeslagen');
     } catch (err) { showToast(err.message, true); }
   });
+}
+
+// Wanneer een idee handmatig een onderwerp krijgt, kijkt dit of andere nog
+// onverwerkte ideeën er genoeg op lijken (zelfde woordoverlap als de
+// automatische groepering) en neemt ze dan meteen mee onder dat onderwerp.
+async function sweepMatchingIntoTopic(content, topic, excludeId) {
+  const anchorWords = [...new Set([...significantWords(content), ...significantWords(topic)])];
+  const candidates = state.notes.filter((n) => !n.reviewed && n.id !== excludeId);
+  let swept = 0;
+  for (const n of candidates) {
+    if (jaccard(anchorWords, significantWords(n.content)) < AUTO_GROUP_THRESHOLD) continue;
+    try {
+      const updated = await updateNote(n.id, { topic, reviewed: true });
+      const idx = state.notes.findIndex((x) => x.id === n.id);
+      state.notes[idx] = updated;
+      swept++;
+    } catch { /* deze ene overslaan, de rest gaat door */ }
+  }
+  return swept;
 }
